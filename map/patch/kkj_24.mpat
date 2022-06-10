@@ -1,0 +1,35 @@
+#new:Function $ScrAPI_removePeachFlag {
+    LI t0, 800740A2
+    LB t1, 0000 (t0) %load peach flags
+    ANDI t1, t1, FFFE
+    SB t1, 0000 (t0) %set peach flags
+    JR RA
+    ORI v0, r0, 2
+}
+
+#new:Function $UsePartner {
+ORI     V0, R0, 1 % ?
+SAB     V0, 8010F2A2 % PartnerID
+JR      RA
+ORI     V0, R0, 2
+}
+
+@ $Script_Main {
+	Set *GB_StoryProgress .Story:Ch8_ReachedPeachsCastle
+	Call $UsePartner ()
+	Call $ScrAPI_removePeachFlag ()
+	Set   *GB_WorldLocation  .Location:PeachsCastle
+	Call  SetSpriteShading	( .Shading:kkj_24 )
+	Call  SetCamPerspective	( .Cam:Default 00000003  25`  16`  4096` )
+	Call  SetCamBGColor		( .Cam:Default  0`  0`  0` )
+	Call  SetCamEnabled		( .Cam:Default .True )
+	Call  SetCamLeadPlayer	( .Cam:Default .False )
+	ExecWait  $Script_MakeEntities
+	Call  $Function_80240000 ( )
+	Exec  $Script_80240080
+	Call  UseDoorSounds		( .DoorSounds:Large )
+	Exec  $Script_EnterDoubleDoor_80240260
+	Wait  1`
+	Return
+	End
+}

@@ -1,0 +1,135 @@
+#define .goombarioID 1
+#define .kooperID 2
+#define .bombetteID 3
+#define .parakarryID 4
+%#define .goompaID 5
+#define .wattID 6
+#define .sushieID 7
+#define .lakilesterID 8
+#define .bowID 9
+%#define .twinkID 10
+
+#new:Function $GivePlayerMaxStats {
+    LIO t0, 8010F290
+    ORI t2, r0, 32 % hex for 50
+	ORI t3, r0, 1E % hex for 30
+	ORI t4, r0, 07 % hex for 7
+	ORI t5, r0, 01 % hex for 1
+    SB t2, 0002 (t0) % set hp
+    SB t2, 0003 (t0) % max hp
+    SB t2, 0004 (t0) % true max hp
+    SB t2, 0005 (t0) % set fp
+    SB t2, 0006 (t0) % max fp
+    SB t2, 0007 (t0) % true max fp
+	SB t3, 0008 (t0) % max BP
+	SB t4, 028E (t0) % max star powers
+	SB t4, 0290 (t0) % fill star power
+	SB t5, 0292 (t0) % star beam
+    JR RA
+    ORI v0, r0, 2
+}
+
+#new:Function $GiveBootsAndHammer {
+	LIO t0, 8010F290
+	ORI t1, r0, 0202
+	SH t1, 0000 (t0)
+	JR RA
+	ORI v0, r0, 0002
+}
+
+#new:Function $GiveActionCommands {
+	ORI t0, r0, 1
+	SAB t0, 8010F29A
+	JR RA
+	ORI v0, r0, 2
+}
+
+#new:Function $GivePartners {
+    ORI v0, r0, .goombarioID
+    SAB v0, 8010F2A2 %store current partner
+    ORI v0, r0, 1 %loop count
+    ORI v1, r0, 0102 %parnter and max level
+    LIO t0, 8010F2A4
+    .loop
+    SLL t1, v0, 3 %multiply loop count by sizeof partner struct
+    ADDU t2, t1, t0 %get offset into struct
+    SH v1, 0000 (t2) %set partner and upgrade
+    SLTI t3, v0, 8 %8 partners
+    BNE t3, r0, .loop
+    ADDIU v0, v0, 1 %increment loop count
+    JR RA
+    ORI v0, r0, 2
+}
+
+#new:Function $ScrAPI_transformIntoPeach {
+    LI t0, 800740A2
+    LB t1, 0000 (t0) %load peach flags
+    ORI t1, t1, 1 %set peach flags
+    SB t1, 0000 (t0)
+    JR RA
+    ORI v0, r0, 2
+}
+
+#new:Function $ScrAPI_givePeachParasol {
+    LI t0, 800740A2
+    LB t1, 0000 (t0) %load peach flags
+    ORI t1, t1, 4 %set peach flags
+    SB t1, 0000 (t0)
+    JR RA
+    ORI v0, r0, 2
+}
+
+#new:Function $ScrAPI_removePeachFlag {
+    LI t0, 800740A2
+    LB t1, 0000 (t0) %load peach flags
+    ANDI t1, t1, FFFE
+    SB t1, 0000 (t0) %set peach flags
+    JR RA
+    ORI v0, r0, 2
+}
+
+#new:Function $ScrAPI_removePeachParasol {
+    LI t0, 800740A2
+    LB t1, 0000 (t0) %load peach flags
+    ANDI t1, t1, FFFB
+    SB t1, 0000 (t0) %set peach flags
+    JR RA
+    ORI v0, r0, 2
+}
+
+#new:Function $UseTwink {
+ORI     V0, R0, B % Twink
+SAB     V0, 8010F2A2 % PartnerID
+JR      RA
+ORI     V0, R0, 2
+}
+
+@ $Script_8024FD70 { % First Play, go to starting castle room
+	%debug
+	Call GotoMap ("kkj_18" 0)
+	Set *GB_StoryProgress .Story:Ch4_BeganPeachMission
+	Call $GivePlayerMaxStats ()
+	Call $GivePartners ()
+	Call $UseTwink ()
+	Call $GiveBootsAndHammer ()
+	Call $GiveActionCommands ()
+	Call $ScrAPI_transformIntoPeach ()
+	Call AddBadge ( .Item:CloseCall *Var0 )
+	Call AddBadge ( .Item:Peekaboo *Var1 )
+	Call AddBadge ( .Item:DodgeMaster *Var2 )
+	Call AddBadge ( .Item:SJumpChg *Var3 )
+	Call AddBadge ( .Item:SSmashChg *Var4 )
+	Call AddBadge ( .Item:PowerRush *Var5 )
+	Call AddBadge ( .Item:LastStand *Var6 )
+	Call AddBadge ( .Item:MegaJump *Var7 )
+	Call AddBadge ( .Item:MegaSmash *Var8 )
+	Call AddBadge ( .Item:PowerBounce *Var9 )
+	Call AddBadge ( .Item:HPPlusA *VarA )
+	Call AddBadge ( .Item:FPPlusA *VarB )
+	Call AddBadge ( .Item:DefendPlusA *VarC )
+	Call AddBadge ( .Item:PowerPlusA *VarD )
+	Call AddItem  ( .Item:JellyUltra *VarE )
+	Call AddItem  ( .Item:JamminJelly *VarF )
+	Return
+	End
+}
